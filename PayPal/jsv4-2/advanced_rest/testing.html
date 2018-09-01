@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="utf-8"/>
+	<title></title>
+
+	
+</head>
+
+	<body>
+		
+	
+
+        <script src="https://www.paypalobjects.com/api/checkout.js" data-version-4></script>        
+
+
+
+<script>
+
+			var EXECUTE_PAYMENT_URL = './executePayment.php';
+
+            paypal.request.post(EXECUTE_PAYMENT_URL, { "paymentID": 123, "payerID": 456 } )
+                    			.then(function(data) { 
+                                        console.log(data.state);
+                                        alert(data.state);
+                                })
+                				.catch(function(err) { alert("Hubo error") });
+				
+
+
+
+
+</script>
+
+
+
+	</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="utf-8"/>
+	<title></title>
+
+	
+</head>
+
+	<body>
+		
+		<script src="https://www.paypalobjects.com/api/checkout.js" data-version-4></script>		
+
+        <pre>
+    Carrito de compra
+
+    Artículo:  Raqueta de Squash Dunlop
+    Precio:  $99.00
+    Cantidad: 1
+
+		</pre>
+
+        <div id="div-cancel" style="display: none; color:red">
+        	<pre>Usted ha cancelado la acción de pago. Puede volver a iniciar su pago dando clic en el botón PayPal</pre>
+        </div>
+		<div id="div-error" style="display: none; color:red">
+			<pre>Se presentó un error al abrir ventana PayPal, por favor no cierre el navegador</pre> 
+		</div>
+        <div id="div-success" style="display: none; color:blue">
+            <pre>   Su compra fue exitosa, muchas gracias:
+            <div id='div-txn' ></div>
+
+            </pre> 
+        </div>
+
+<pre>
+		       <div id="paypal-button">    </div>
+</pre>
+
+
+
+<script>
+    paypal.Button.render({
+    
+        env: 'sandbox', // Specify 'sandbox' for the test environment
+        locale: 'es_MX',
+
+
+ 		client: {
+            sandbox:    'AXiZk_SlHLuRoA8JVsKG-VPf_21Zk5i0_-JpUBKucqXCvACvkEt4D-cj-kVDnetHQlyXMTH8qWKvUfWB',
+            production: ''
+        },        
+        
+        style: {
+            size: 'medium',  //tiny, small, medium
+            color: 'gold',  //  gold ,  blue, silver
+            shape: 'pill'    //  pill,  rect
+        },
+		
+
+        payment: function() {
+        
+            var env    = this.props.env;
+            var client = this.props.client;
+        
+            return paypal.rest.payment.create(env, client, {
+                transactions: [
+                    {
+                        amount: { total: '99.00', currency: 'MXN' },
+                        'description':'Esta es la descripcion del pago',
+                        'item_list':{
+
+                                'items':[{
+                                        'name':'Raqueta de Squash',
+                                        'description':'Es una bonita raqueta de Squash',
+                                        'quantity':'1',
+                                        'price':'99.00',
+                                        'currency':'MXN'
+                                }],
+                                'shipping_address': {
+                                  'recipient_name': 'Gerardo Ortiz',
+                                  'line1': 'Mariano Escobedo 999 piso 14',
+                                  'line2': 'Anzures, Miguel Hidalgo',
+                                  'city': 'Mexico DF',
+                                  'state': 'DF',
+                                  'postal_code': '11590',
+                                  'country_code': 'MX',
+                                  'phone': '54545454'
+                                }                  
+                        }                        
+                    }
+                ]
+            });
+        },
+
+        commit: true, // Optional: show a 'Pay Now' button in the checkout flow
+
+        onAuthorize: function(data, actions) {
+                
+            return actions.payment.execute().then(function() {
+                actions.payment.get().then(function(payment) {
+                        console.log( payment);
+                        console.log( actions);
+                        console.log( JSON.stringify( payment));
+                        var divtxn= document.getElementById('div-txn');
+                        divtxn.innerHTML+="Estado del pago: "+  payment.state;
+                        divtxn.innerHTML+="\nPAY-ID: "+  payment.id;
+                        divtxn.innerHTML+="\nCart: "+  payment.cart;
+                        divtxn.innerHTML+="\nComprador: "+  payment.payer.payer_info.first_name + " " +payment.payer.payer_info.last_name;
+                        divtxn.innerHTML+="\nSu pago: $"+  payment.transactions[0].amount.total;
+//                        divtxn.innerHTML+="\nTransaction ID: "+  payment.transactions[0].related_resources[0].sale.id;
+                });
+				document.getElementById('paypal-button').style.display='none';
+                document.getElementById('div-success').style.display='block';          
+            });
+
+        },
+
+        onCancel: function(data, actions) {
+            // Show a cancel page or return to cart
+            
+            document.getElementById('div-cancel').style.display='block';
+
+        },
+
+        onError: function(err) {
+            // Show an error page here, when an error occurs
+            console.log(err);
+            document.getElementById('div-error').style.display='block';
+            
+        },
+
+            
+    }, '#paypal-button');
+
+
+
+
+
+</script>
+
+
+
+
+
+	</body>
+</html>

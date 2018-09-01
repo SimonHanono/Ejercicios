@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="utf-8"/>
+	<title></title>
+
+	
+</head>
+
+	<body>
+		
+		<script src="https://www.paypalobjects.com/api/checkout.js" data-version-4></script>		
+
+        <pre>
+    Carrito de compra
+
+    Artículo:  Raqueta de Squash Dunlop
+    Precio:  $99.00
+    Cantidad: 1
+
+		</pre>
+
+        <div id="div-cancel" style="display: none; color:red">
+        	<pre>Usted ha cancelado la acción de pago. Puede volver a iniciar su pago dando clic en el botón PayPal</pre>
+        </div>
+		<div id="div-error" style="display: none; color:red">
+			<pre>Se presentó un error al abrir ventana PayPal, por favor no cierre el navegador</pre> 
+		</div>
+
+
+<pre>
+		       <div id="paypal-button">    </div>
+</pre>
+
+
+
+<script>
+    paypal.Button.render({
+    
+        env: 'sandbox', // Specify 'sandbox' for the test environment
+        locale: 'es_MX',
+        
+        style: {
+            size: 'small',  //tiny, small, medium
+            color: 'blue',  //  gold ,  blue, silver
+            shape: 'rect'    //  pill,  rect
+        },
+		
+
+        payment: function(resolve, reject ) {
+        	document.getElementById('div-cancel').style.display='none';
+        	document.getElementById('div-error').style.display='none';
+        //payment: function() {
+            // Set up the payment here, when the buyer clicks on the button
+			var CREATE_PAYMENT_URL = './createPayment.php';
+                
+            paypal.request.post(CREATE_PAYMENT_URL)
+                .then(function(data) { resolve(data.paymentID); })
+                .catch(function(err) { reject(err); })                ;            
+        },
+
+        onAuthorize: function(data, actions) {
+            // Execute the payment here, when the buyer approves the transaction
+
+			var EXECUTE_PAYMENT_URL = './executePayment.php';
+			//alert(data.paymentID + " "+ data.payerID);
+            paypal.request.post(EXECUTE_PAYMENT_URL, { "paymentID": data.paymentID, "payerID": data.payerID } )
+                    			.then(function(data) { 
+
+                    					console.log("ESTE ES EL RESULTADO:  " + data);
+
+                    					if(data.state=="approved"){
+
+                    							document.getElementById("dataResult").value="SUCCESS";
+                    							document.getElementById("resultForm").submit();
+                    					}else{
+                    						if(true){
+                    							actions.restart();
+                    						}
+                    					}
+
+                    			})
+                				.catch(function(err) { alert("Hubo error") });
+				
+
+            
+
+       },
+
+        onCancel: function(data, actions) {
+            // Show a cancel page or return to cart
+            
+            document.getElementById('div-cancel').style.display='block';
+
+        },
+
+        onError: function(err) {
+            // Show an error page here, when an error occurs
+            console.log(err);
+            document.getElementById('div-error').style.display='block';
+            
+        },
+
+            
+    }, '#paypal-button');
+
+
+
+
+
+</script>
+
+
+<form style="display: hidden"  method="post" id="resultForm"  action="./result.php">
+	<input type="hidden" id="dataResult" name="dataResult" value=""/>
+</form>
+
+
+
+	</body>
+</html>
